@@ -17,8 +17,7 @@ for the following changes:
 Creating a Custom Cartpole Environment Class from Scratch
 Action Space: Continuous 1-D[Force]= Real value from (-1,1)
 State Space: Continuous 4-D [x,x_dot, theta, theta_dot]=[pos_cart,vel_cart,angle_pole,ang_vel_pole]
-Rewards: Sparse Rewards(Discrete-Binary rewards
-i.e -1 for all times if the and "0" if the pole is at self.threshold_angle
+Rewards: Dense Rewards based on the cost function from PILCO
 
 b - friction coefficient between the track and the cart is considered
 neglecting friction in the cart-pole joint
@@ -117,8 +116,8 @@ class CartpoleRandomEnv(gym.Env):
     #this reward is the default reward from the Open AI Gym environment
     
     # Reward from the PILCO paper, reference  to the paper:
-    #PILCO: A Model-Based and Data-Efficient Approach to Policy Search
     # http://mlg.eng.cam.ac.uk/pub/pdf/DeiRas11.pdf
+    
     goal = np.array([0.0, self.length_pole])
     pole_x = self.length_pole*sin_theta
     pole_y = self.length_pole*cos_theta
@@ -126,9 +125,10 @@ class CartpoleRandomEnv(gym.Env):
     squared_distance = np.sum((position - goal)**2)
     squared_sigma = 0.25**2
     costs = 1 - np.exp(-0.5*squared_distance/squared_sigma)
+    
     reward = -costs
     obs = np.array([x,x_dot,normalize_pole_angle(theta),theta_dot])
-    return obs,reward,done,{} #don't know how many variables the function returns, have to change this.
+    return obs,reward,done,{} 
 
 
   def reset(self):
